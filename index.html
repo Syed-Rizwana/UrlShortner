@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("https://img.freepik.com/photos-premium/photos-nature-couper-souffle-qui-capturent-beaute-du-monde-naturel_853677-16086.jpg");
+            background-repeat: no-repeat;
+            background-size: 1500px 800px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 70px);
+            padding: 10px;
+            border-radius: 4px 0 0 4px;
+            border: 1px solid #ccc;
+        }
+
+        input[type="submit"] {
+            width: 70px;
+            padding: 10px;
+            border-radius: 0 4px 4px 0;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        #shortUrlContainer {
+            margin-top: 20px;
+        }
+
+        #shortUrl {
+            font-size: 16px;
+            margin-bottom: 0;
+        }
+
+        #shortUrlValue {
+            color: #007bff;
+            font-weight: bold;
+            word-break: break-all;
+        }
+
+        #copyButton {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        #copyButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>URL Shortener</h1>
+        <!-- Form for submitting URL to be shortened -->
+        <form id="shortenForm">
+            <input type="text" placeholder="Enter URL to shorten" name="originalurl" id="originalurl" required>
+            <input type="submit" value="Shorten">
+        </form>
+        
+        <!-- Container to display the shortened URL -->
+        <div id="shortUrlContainer">
+            <p id="shortUrl">Shortened URL: <span id="shortUrlValue"></span> <button id="copyButton">Copy</button></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const shortenForm = document.getElementById('shortenForm');
+            const shortUrlValue = document.getElementById('shortUrlValue');
+            const copyButton = document.getElementById('copyButton');
+    
+            shortenForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+    
+                const formData = new FormData(shortenForm);
+                const originalurl = formData.get('originalurl');
+    
+                try {
+                    const response = await fetch('http://localhost:3000/shorten', { 
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ originalurl })
+});
+    
+                    if (response.ok) {
+                        const data = await response.json();
+                        shortUrlValue.textContent = data.shorturl;
+                    } else {
+                        throw new Error('Failed to shorten URL');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
+    
+            copyButton.addEventListener('click', () => {
+                const tempInput = document.createElement('input');
+                tempInput.value = shortUrlValue.textContent;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                alert('URL copied to clipboard!');
+                shortenForm.reset();
+                shortUrlValue.textContent = '';
+            });
+        });
+    </script>
+    
+</body>
+
+</html>
